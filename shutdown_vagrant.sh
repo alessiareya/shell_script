@@ -1,42 +1,32 @@
 #!/bin/bash
 
-vagrant_dir="~/Vagrant/"
-vagrant01=ansible
-vagrant02=alessi01
-vagrant03=alessi02
+vagrant_dir=~/Vagrant/
 
-echo "仮想マシン ${vagrant01}をシャットダウンしますか？please input \"y\" or \"n\""
-read yn
-if [ $yn = y ]; then
-  cd ${vagrant_dir}${vagrant01}
-  vagrant halt && echo "シャットダウンが完了しました。"
-elif [ $yn = n ]; then
-  echo "仮想マシン ${vagrant01}のシャットダウンを中止します。"
-else
-  echo " yかnを入力して下さい"
-fi
+for VM in `ls ${vagrant_dir}`
+do
+  echo "Do you want to shutdown ${VM}？　Please input \"y\" or \"n\""
+  read yn
 
-echo "仮想マシン ${vagrant02}をシャットダウンしますか？please input \"y\" or \"n\""
-read yn
-if [ $yn = y ]; then
-cd ${vagrant_dir}${vagrant02}
-  vagrant halt && echo "シャットダウンが完了しました。"
-elif [ $yn = n ]; then
-  echo "仮想マシン ${vagrant02}のシャットダウンを中止します。"
-else
-  echo " yかnを入力して下さい"
-fi
+  if [ $yn = y ]; then
+    cd ${vagrant_dir}${VM}/
+    vagrant status | grep poweroff > /dev/null
+    VMSTATE=$?
 
-echo "仮想マシン ${vagrant03}をシャットダウンしますか？please input \"y\" or \"n\""
-read yn
-if [ $yn = y ]; then
-  cd ${vagrant_dir}${vagrant03}
-  vagrant halt && echo "シャットダウンが完了しました。"
-elif [ $yn = n ]; then
-  echo "仮想マシン ${vagrant03}のシャットダウンを中止します。"
-else
-  echo " yかnを入力して下さい"
-fi
+    case ${VMSTATE} in
+      0)
+        echo "THE VM ${VM} is stopped."
+        ;;
+      1)
+        vagrant halt && echo "Shutdown of the VM ${VM} is completed."
+        ;;
+    esac
 
-echo "仮想マシンの状態を表示します。"
+  elif [ $yn = n ]; then
+    echo "Cancel VM ${VM} shutdown."
+  else
+    echo "Please input \"y\" or \"n\""
+  fi
+done
+
+echo "Display VM's state."
 vagrant global-status
