@@ -15,7 +15,7 @@ if [ ${yn} = y ]; then
     VM_STATE=$?
     case ${VM_STATE} in
       0)
-        vagrant up && echo "VM \"${i}\" is started." ;;
+        vagrant up && echo "VM \"${VM}\" is started." ;;
       1)
         echo "VM \"${VM}\" is already running." ;;
     esac
