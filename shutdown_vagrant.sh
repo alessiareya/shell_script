@@ -1,32 +1,51 @@
 #!/bin/bash
 
-vagrant_dir=~/Vagrant/
+## environment variable
+VAGRANT_DIR=~/Vagrant/
 
-for VM in `ls ${vagrant_dir}`
-do
-  echo "Do you want to shutdown ${VM}？　Please input \"y\" or \"n\""
-  read yn
+## all VMs shutdown
+echo "Do you want to shutdown all VMs? input \"y\" or \"n\""
+read yn
 
-  if [ $yn = y ]; then
-    cd ${vagrant_dir}${VM}/
-    vagrant status | grep poweroff > /dev/null
-    VMSTATE=$?
-
-    case ${VMSTATE} in
+if [ ${yn} = y ]; then
+  for VM in `ls ${VAGRANT_DIR}`;
+  do
+    cd ${VAGRANT_DIR}${VM}/
+    vagrant status | grep running > /dev/null
+    VM_STATE=$?
+    case ${VM_STATE} in
       0)
-        echo "THE VM ${VM} is stopped."
-        ;;
+        vagrant halt && echo "VM \"${VM}\" is shutdowned." ;;
       1)
-        vagrant halt && echo "Shutdown of the VM ${VM} is completed."
-        ;;
+        echo "VM \"${VM}\" is already shutdowned." ;;
     esac
+  done
+elif [ ${yn} = n ]; then
+  echo "select VM to be shutdowned."
+  for VM in `ls ${VAGRANT_DIR}`;
+  do
+    echo "Do you want to shutdown VM \"${VM}\"? input \"y\" or \"n\""
+    read yn
+    if [ ${yn} = y ]; then
+      cd ${VAGRANT_DIR}${VM}/
+      vagrant status | grep running > /dev/null
+      VMSTATE=$?
+      case ${VMSTATE} in
+        0)
+          vagrant halt && echo "VM \"${VM}\" is shutdowned." ;;
+        1)
+          echo "VM \"${VM}\" is already shutdowned." ;;
+      esac
+    elif [ ${yn} = n ]; then
+      echo "Shutdown VM \"${VM}\" was canceled."
+    else
+      echo "input \"y\" or \"n\""
+    fi
+  done
+else
+    echo "input \"y\" or \"n\""
+fi
 
-  elif [ $yn = n ]; then
-    echo "Cancel VM ${VM} shutdown."
-  else
-    echo "Please input \"y\" or \"n\""
-  fi
-done
-
+## Processing after startup
 echo "Display VM's state."
 vagrant global-status
