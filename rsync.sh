@@ -48,11 +48,11 @@ read yn
 if [ ${yn} = y ]; then
   LOCAL_CHECK_SUM=`find ${DEST_DIR} -type f -exec md5sum {} \; | sort | md5sum`
   LOCAL_COUNT_FILES=`find ${DEST_DIR} -type f | wc -l`
-  LOCAL_COUNT_FILE_SIZE=`find ${DEST_DIR} -type f -printf "%p %s\n" | awk 'BEGIN { sum = 0; } { sum += $2; } END { print sum; }'`
+  LOCAL_COUNT_FILE_SIZE=`find ${DEST_DIR} -type f -printf "%s\n" | awk 'BEGIN { sum = 0; } { sum += $1; } END { print sum; }'`
 
   REMOTE_CHECK_SUM=`ssh ${DEST_USER}@${DEST_HOST} -i ${KEY} "find ${DEST_DIR} -type f -exec md5sum {} \; | sort | md5sum"`
   REMOTE_COUNT_FILES=`ssh ${DEST_USER}@${DEST_HOST} -i ${KEY} "find ${DEST_DIR} -type f | wc -l"`
-  REMOTE_COUNT_FILE_SIZE=`ssh ${DEST_USER}@${DEST_HOST} -i ${KEY} "find ${DEST_DIR} -type f -printf \"%p %s\n\"" | awk 'BEGIN { sum = 0; } { sum += $2; } END { print sum; }'`
+  REMOTE_COUNT_FILE_SIZE=`ssh ${DEST_USER}@${DEST_HOST} -i ${KEY} "find ${DEST_DIR} -type f -printf \%s\n\"" | awk 'BEGIN { sum = 0; } { sum += $1; } END { print sum; }'`
 
   echo "########## LOCAL HOST RESURT ##########"
   echo "checksum is \"${LOCAL_CHECK_SUM}\""
