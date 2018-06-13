@@ -30,3 +30,12 @@ if [ $yn = y ]; then
     USERNAME=`echo $i | cut -d "," -f 1`
     OLD_GID=`echo $i | cut -d "," -f 2`
     NEW_GID=`echo $i | cut -d "," -f 3`
+    mkdir -p change_uid/${USERNAME}
+    mkdir -p change_gid/${USERNAME}
+    find -P ${TARGET_DIR} -gid ${OLD_GID} -exec chown -h ${NEW_GID} {} \; | tee change_gid/${USERNAME}/change_gid.list
+  done
+elif [ $yn = n ]; then
+  echo "NO CHANGE GID."
+else
+  echo "input y or n"
+fi
