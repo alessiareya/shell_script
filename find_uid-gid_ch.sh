@@ -26,6 +26,7 @@ if [ $yn = y ]; then
     find -P ${TARGET_DIR} -uid ${OLD_UID} -exec chown -h ${NEW_UID} {} \; -print | tee ${USERNAME}/${USERNAME}_change_uid.list &
     wait
   done
+  echo "changed uid" && echo ""
 elif [ $yn = n ]; then
   echo "NO CHANGE UID."
 else
@@ -44,6 +45,7 @@ if [ $yn = y ]; then
     find -P ${TARGET_DIR} -uid ${OLD_GID} -exec chgrp -h ${NEW_GID} {} \; -print | tee ${USERNAME}/${USERNAME}_change_gid.list &
     wait
   done
+  echo "changed uid" && echo ""
 elif [ $yn = n ]; then
   echo "NO CHANGE GID."
 else
