@@ -15,7 +15,7 @@ if [ ${yn} = y ]; then
     VM_STATE=$?
     case ${VM_STATE} in
       0)
-        vagrant up && echo "VM \"${VM}\" is started." ;;
+        vagrant up > /dev/null && echo "VM \"${VM}\" is started." ;;
       1)
         echo "VM \"${VM}\" is already running." ;;
     esac
@@ -32,7 +32,7 @@ elif [ ${yn} = n ]; then
       VMSTATE=$?
       case ${VMSTATE} in
         0)
-          vagrant up && echo "VM \"${VM}\" is started." ;;
+          vagrant up > /dev/null && echo "VM \"${VM}\" is started." ;;
         1)
           echo "VM \"${VM}\" is already running." ;;
       esac

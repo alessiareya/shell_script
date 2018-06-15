@@ -15,7 +15,7 @@ if [ ${yn} = y ]; then
     VM_STATE=$?
     case ${VM_STATE} in
       0)
-        vagrant halt && echo "VM \"${VM}\" is shutdowned." ;;
+        vagrant halt > /dev/null && echo "VM \"${VM}\" is shutdowned." ;;
       1)
         echo "VM \"${VM}\" is already shutdowned." ;;
     esac
@@ -32,7 +32,7 @@ elif [ ${yn} = n ]; then
       VMSTATE=$?
       case ${VMSTATE} in
         0)
-          vagrant halt && echo "VM \"${VM}\" is shutdowned." ;;
+          vagrant halt > /dev/null && echo "VM \"${VM}\" is shutdowned." ;;
         1)
           echo "VM \"${VM}\" is already shutdowned." ;;
       esac
