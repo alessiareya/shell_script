@@ -10,14 +10,16 @@ if [ ${yn} = y ]; then
   for VM in `ls ${VAGRANT_DIR}`;
   do
     cd ${VAGRANT_DIR}${VM}/
-    vagrant status | grep poweroff > /dev/null
-    VM_STATE=$?
-    case ${VM_STATE} in
-      0)
-        vagrant up > /dev/null && echo "##### VM \"${VM}\" is started. #####" ;;
-      1)
-        echo "##### VM \"${VM}\" is already running. #####" ;;
-    esac
+    VM_STATUS=`vagrant status | grep default | awk '{ print $2 }'`
+    if [ ${VM_STATUS} = "powered" ]; then
+      vagrant up > /dev/null && echo "##### VM \"${VM}\" is started. #####" 
+    elif [ ${VM_STATUS} = "running" ]; then
+      echo "##### VM \"${VM}\" is already running. #####"
+    elif [ ${VM_STATUS} = "saved" ]; then
+      vagrant resume > /dev/null && echo "##### VM \"${VM}\" resumed from suspend. #####"
+    else
+      echo "##### UNKNOWN STATUS #####"
+    fi
   done
 elif [ ${yn} = n ]; then
   echo "select VM to be activated."
@@ -26,14 +28,16 @@ elif [ ${yn} = n ]; then
     read -p "Do you want to startup VM \"${VM}\"? input \"y\" or \"n\"" yn
     if [ ${yn} = y ]; then
       cd ${VAGRANT_DIR}${VM}/
-      vagrant status | grep poweroff > /dev/null
-      VMSTATE=$?
-      case ${VMSTATE} in
-        0)
-          vagrant up > /dev/null && echo "VM \"##### ${VM}\" is started. #####" ;;
-        1)
-          echo "##### VM \"${VM}\" is already running. #####" ;;
-      esac
+      VM_STATUS=`vagrant status | grep default | awk '{ print $2 }'`
+      if [ ${VM_STATUS} = "powered" ]; then
+        vagrant up > /dev/null && echo "##### VM \"${VM}\" is started. #####" 
+      elif [ ${VM_STATUS} = "running" ]; then
+        echo "##### VM \"${VM}\" is already running. #####"
+      elif [ ${VM_STATUS} = "saved" ]; then
+        vagrant resume > /dev/null && echo "##### VM \"${VM}\" resumed from suspend. #####"
+      else
+        echo "##### UNKNOWN STATUS #####"
+      fi
     elif [ ${yn} = n ]; then
       echo "##### Starting VM \"${VM}\" was canceled. #####"
     else
