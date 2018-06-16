@@ -27,8 +27,7 @@ case ${yn} in
   "y") echo "rsync will be started."
        rsync ${RSYNC_OPTION} --log-file=${LOG_FILE} ${SRC_DIR} ${DEST_USER}@${DEST_HOST}:${DEST_DIR} > /dev/null
        RSYNC_STATUS=$? ;;
-  "n") echo "rsync was canceled."
-       exit 0 ;;
+  "n") echo "rsync was canceled." ;;
 esac
 
 if [ ! ${RSYNC_STATUS} = 0 ]; then
