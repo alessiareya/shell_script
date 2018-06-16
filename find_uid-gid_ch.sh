@@ -33,7 +33,7 @@ else
   echo "input y or n"
 fi
 
-# GID CHANGE
+## GID CHANGE
 read -p "##### Do you change GID? input \"y\" or \"n\" #####" yn
 if [ $yn = y ]; then
   for i in `cat $1`
