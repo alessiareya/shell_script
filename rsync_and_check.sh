@@ -1,77 +1,14 @@
 #!/bin/bash
 
-<<<<<<< HEAD:rsync_and_check.sh
-## ENVIRONMENT VARIABLE
-=======
 PROGNAME=$(basename $0)
 
 # DEFAULT VARIABLE
 
->>>>>>> 45bbf46a8f091b0ff1e9b77afca3c74775153f3a:rsync.sh
 SRC_DIR="/data/"
 DEST_USER="root"
 DEST_HOST="192.168.10.151"
 DEST_DIR="/data/"
 RSYNC_OPTION="-az --delete"
-<<<<<<< HEAD:rsync_and_check.sh
-KEY=~/.ssh/id_rsa
-LOG_FILE="log_`date "+%Y%m%d_%H%M%S.log"`"
-MAIL_ADDRESS="root@localhost"
-
-## RSYNC PRE TEST
-ssh ${DEST_USER}@${DEST_HOST} -i ${KEY} 'exit' > /dev/null
-SSH_STATUS=$?
-
-case ${SSH_STATUS} in
-  0) echo "ssh check is OK."
-     echo "Do you want to run rsync? input \"y\" or \"n\""
-     read yn ;;
-  *) echo "ssh check is NG."
-     exit 0 ;;
-esac
-
-## RUN RSYNC
-case ${yn} in
-  "y") echo "rsync will be started."
-       rsync ${RSYNC_OPTION} --log-file=${LOG_FILE} ${SRC_DIR} ${DEST_USER}@${DEST_HOST}:${DEST_DIR} > /dev/null
-       RSYNC_STATUS=$? ;;
-  "n") echo "rsync was canceled." ;;
-esac
-
-if [ ! ${RSYNC_STATUS} = 0 ]; then
-  while [ ${RSYNC_STATUS} = 0 ]; do
-    echo " ##### rsync retry #####"
-    rsync ${RSYNC_OPTION} --log-file=${LOG_FILE} ${SRC_DIR} ${DEST_USER}@${DEST_HOST}:${DEST_DIR} > /dev/null
-    RSYNC_STATUS=$?
-  done
-else
-  echo "rsync was successful."
-fi
-
-## after rsync count checksum, files, file size
-echo "Do you count the checksum, number of files, file size from destination directory? \"y\" or \"n\""
-read yn
-
-if [ ${yn} = y ]; then
-  LOCAL_CHECK_SUM=`find ${DEST_DIR} -type f -exec md5sum {} \; | sort | md5sum`
-  LOCAL_COUNT=`find ${DEST_DIR} -type f -printf "%p %s\n" | awk 'BEGIN { sum = 0; } { sum += $2; } END { print "file count total is " NR, "file size total is " sum; }'`
-  REMOTE_CHECK_SUM=`ssh ${DEST_USER}@${DEST_HOST} -i ${KEY} "find ${DEST_DIR} -type f -exec md5sum {} \; | sort | md5sum"`
-  REMOTE_COUNT=`ssh ${DEST_USER}@${DEST_HOST} -i ${KEY} "find ${DEST_DIR} -type f -printf \"%p %s\n\"" | awk 'BEGIN { sum = 0; } { sum += $2; } END { print "file count total is " NR, "file size total is " sum; }'`
-
-  echo "########## LOCAL HOST RESURT ##########"
-  echo "checksum is \"${LOCAL_CHECK_SUM}\""
-  echo ${LOCAL_COUNT} && echo ""
-
-  echo "########## REMOTE HOST RESULT ##########"
-  echo "checksum is \"${REMOTE_CHECK_SUM}\""
-  echo ${REMOTE_COUNT}
-
-elif [ ${yn} = n ]; then
-  echo "Processing ends."
-  exit 0
-else
-  echo "input \"y\" or \"n\""
-=======
 KEY="NO"
 KEY_FILE="~/.ssh/id_rsa"
 TIMESTAMP=$(date "+%Y%m%d_%H%M%S")
@@ -108,7 +45,7 @@ EOF
 
 usage() {
 	cat <<"EOF"
-Usage $PROGNAME [-s|--src-dir SRC_DIR] [-u|--user|--dest-user USER] [-d|--dest-dir DEST_DIR] [--host|--dest-host DEST_HOST] [-r|--rsync-opt RSYNC_OPT] [--sha] [--sha-file FILE] [--md5] [--md5-file FILE] [-k|--ssh-key KEY] 
+Usage $PROGNAME [-s|--src-dir SRC_DIR] [-u|--user|--dest-user USER] [-d|--dest-dir DEST_DIR] [--host|--dest-host DEST_HOST] [-r|--rsync-opt RSYNC_OPT] [--sha] [--sha-file FILE] [--md5] [--md5-file FILE] [-k|--ssh-key KEY]
       $PROGNAME [-h|--help|-v|--version]
 
 VARIABLE OPTION
@@ -137,7 +74,7 @@ CHECK OPTION
 	check data by sha512, md5 : THIS REQUIRE sha512sum/md5sum command on LOCAL and DEST_HOST. If not, chose --none to check by rerunning rsync
 --sha-file FILE | --md5-file FILE
         the same check above except reusing FILE as check sum of LOCAL
-     
+
 EOF
 exit 0
 }
@@ -274,7 +211,7 @@ if [[ "$SHA512" = "YES" ]] ; then
 fi
 
 # RUN RSYNC
-rsync ${RSYNC_OPTION} --log-file="${LOG_FILE}" "${SRC_DIR}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}" 
+rsync ${RSYNC_OPTION} --log-file="${LOG_FILE}" "${SRC_DIR}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}"
 
 # CHECK SEND DATA
 
@@ -300,6 +237,5 @@ if [[ "$SHA512" = "YES" ]] ; then
 fi
 if [[ "$MD5" = "NO" ]] && [[ "$SHA512" = "NO" ]] ; then
 	echo "--- run rsync again to check ---"
-	rsync "${RSYNC_OPTION}" "${SRC_DIR}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}" 
->>>>>>> 45bbf46a8f091b0ff1e9b77afca3c74775153f3a:rsync.sh
+	rsync "${RSYNC_OPTION}" "${SRC_DIR}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}"
 fi
