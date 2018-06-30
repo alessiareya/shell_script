@@ -18,7 +18,7 @@ if [ ${yn} = y ]; then
     elif [ ${VM_STATUS} = "saved" ]; then
       vagrant resume > /dev/null && echo "##### VM \"${VM}\" resumed from suspend. #####"
     else
-      echo "##### UNKNOWN STATUS #####"
+      vagrant up > /dev/null && echo "##### VM \"${VM}\" is started from aborted. #####" 
     fi
   done
 elif [ ${yn} = n ]; then
