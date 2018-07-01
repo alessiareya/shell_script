@@ -220,11 +220,11 @@ if [[ "$MD5" = "YES" ]] ; then
 	echo "--- check files with md5 cache ---"
 	if [[ "$KEY" = "YES" ]] ; then
 		scp -i "${KEY_FILE}" "${MD5_FILE}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}${MD5_FILE}" > /dev/null
-		ssh -i "${KEY_FILE}" "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; md5sum -c ${DEST_DIR}${MD5_FILE} > /dev/null"
+		ssh -i "${KEY_FILE}" "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; md5sum -c ${MD5_FILE} > /dev/null"
 		CHECKSUM_RESULT=$?
 	else
 		scp "${MD5_FILE}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}${MD5_FILE}" > /dev/null
-		ssh "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; md5sum -c ${DEST_DIR}${MD5_FILE} > /dev/null"
+		ssh "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; md5sum -c ${MD5_FILE} > /dev/null"
 		CHECKSUM_RESULT=$?
 	fi
 fi
@@ -232,11 +232,11 @@ if [[ "$SHA512" = "YES" ]] ; then
 	echo "--- check files with sha512 cache ---"
 	if [[ "$KEY" = "YES" ]] ; then
 		scp -i "${KEY_FILE}" "${SHA512_FILE}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}${SHA512_FILE}" > /dev/null
-		ssh -i "${KEY_FILE}" "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; sha512sum -c ${DEST_DIR}${SHA512_FILE} > /dev/null"
+		ssh -i "${KEY_FILE}" "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; sha512sum -c ${SHA512_FILE} > /dev/null"
 		CHECKSUM_RESULT=$?
 	else
 		scp "${SHA512_FILE}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}/${SHA512_FILE}" > /dev/null
-		ssh "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; sha512sum -c ${DEST_DIR}${SHA512_FILE} > /dev/null"
+		ssh "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; sha512sum -c ${SHA512_FILE} > /dev/null"
 		CHECKSUM_RESULT=$?
 	fi
 fi
