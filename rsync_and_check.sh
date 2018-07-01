@@ -218,21 +218,21 @@ rsync ${RSYNC_OPTION} --log-file="${LOG_FILE}" "${SRC_DIR}" "${DEST_USER}@${DEST
 if [[ "$MD5" = "YES" ]] ; then
 	echo "--- check files with md5 cache ---"
 	if [[ "$KEY" = "YES" ]] ; then
-		scp -i "${KEY_FILE}" "${MD5_FILE}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}/${MD5_FILE}" > /dev/null
-		ssh -i "${KEY_FILE}" "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; md5sum -c ${DEST_DIR}/${MD5_FILE}"
+		scp -i "${KEY_FILE}" "${MD5_FILE}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}${MD5_FILE}" > /dev/null
+		ssh -i "${KEY_FILE}" "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; md5sum -c ${DEST_DIR}${MD5_FILE} > /dev/null"
 	else
-		scp "${MD5_FILE}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}/${MD5_FILE}" > /dev/null
-		ssh "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; md5sum -c ${DEST_DIR}/${MD5_FILE}"
+		scp "${MD5_FILE}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}${MD5_FILE}" > /dev/null
+		ssh "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; md5sum -c ${DEST_DIR}${MD5_FILE} > /dev/null"
 	fi
 fi
 if [[ "$SHA512" = "YES" ]] ; then
 	echo "--- check files with sha512 cache ---"
 	if [[ "$KEY" = "YES" ]] ; then
-		scp -i "${KEY_FILE}" "${SHA_FILE}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}/${SHA_FILE}" > /dev/null
-		ssh -i "${KEY_FILE}" "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; sha512sum -c ${DEST_DIR}/${SHA_FILE}"
+		scp -i "${KEY_FILE}" "${SHA512_FILE}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}${SHA512_FILE}" > /dev/null
+		ssh -i "${KEY_FILE}" "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; sha512sum -c ${DEST_DIR}${SHA512_FILE} > /dev/null"
 	else
-		scp "${SHA_FILE}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}/${SHA_FILE}" > /dev/null
-		ssh "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; sha512sum -c ${DEST_DIR}/${SHA_FILE}"
+		scp "${SHA512_FILE}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}/${SHA512_FILE}" > /dev/null
+		ssh "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; sha512sum -c ${DEST_DIR}${SHA512_FILE} > /dev/null"
 	fi
 fi
 if [[ "$MD5" = "NO" ]] && [[ "$SHA512" = "NO" ]] ; then
