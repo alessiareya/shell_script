@@ -237,5 +237,5 @@ if [[ "$SHA512" = "YES" ]] ; then
 fi
 if [[ "$MD5" = "NO" ]] && [[ "$SHA512" = "NO" ]] ; then
 	echo "--- run rsync again to check ---"
-	rsync "${RSYNC_OPTION}" "${SRC_DIR}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}"
+	rsync ${RSYNC_OPTION} "${SRC_DIR}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}"
 fi
