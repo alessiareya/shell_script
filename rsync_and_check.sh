@@ -17,6 +17,7 @@ SHA512="NO"
 SHA512_FILE="sha_${TIMESTAMP}.log"
 MD5="NO"
 MD5_FILE="md5_${TIMESTAMP}.log"
+FIND_EXCLUDE="-not -type b -not -type c -not -type p"
 
 # UTILITIES
 
@@ -198,7 +199,7 @@ if [[ "$MD5" = "YES" ]] ; then
 	echo "--- md5sum cache file is required ---"
 	if [[ ! -r "$MD5_FILE" ]] ; then
 		echo "--- making md5sum cache file"
-		find "${SRC_DIR}" -type f | xargs -n 1 md5sum > "$MD5_FILE"
+		find "${SRC_DIR}" -type f ${FIND_EXCLUDE} | xargs -n 1 md5sum > "$MD5_FILE"
 	fi
 fi
 
@@ -206,7 +207,7 @@ if [[ "$SHA512" = "YES" ]] ; then
 	echo "--- sha512 cache file is required ---"
 	if [[ ! -r "$SHA512_FILE" ]] ; then
 		echo "--- makng sha512 cache file"
-		find "${SRC_DIR}" -type f | xargs -n 1 sha512sum > "$SHA512_FILE"
+		find "${SRC_DIR}" -type f ${FIND_EXCLUDE} | xargs -n 1 sha512sum > "$SHA512_FILE"
 	fi
 fi
 
