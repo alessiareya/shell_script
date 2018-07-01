@@ -220,9 +220,11 @@ if [[ "$MD5" = "YES" ]] ; then
 	if [[ "$KEY" = "YES" ]] ; then
 		scp -i "${KEY_FILE}" "${MD5_FILE}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}${MD5_FILE}" > /dev/null
 		ssh -i "${KEY_FILE}" "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; md5sum -c ${DEST_DIR}${MD5_FILE} > /dev/null"
+		CHECKSUM_RESULT=$?
 	else
 		scp "${MD5_FILE}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}${MD5_FILE}" > /dev/null
 		ssh "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; md5sum -c ${DEST_DIR}${MD5_FILE} > /dev/null"
+		CHECKSUM_RESULT=$?
 	fi
 fi
 if [[ "$SHA512" = "YES" ]] ; then
@@ -230,12 +232,38 @@ if [[ "$SHA512" = "YES" ]] ; then
 	if [[ "$KEY" = "YES" ]] ; then
 		scp -i "${KEY_FILE}" "${SHA512_FILE}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}${SHA512_FILE}" > /dev/null
 		ssh -i "${KEY_FILE}" "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; sha512sum -c ${DEST_DIR}${SHA512_FILE} > /dev/null"
+		CHECKSUM_RESULT=$?
 	else
 		scp "${SHA512_FILE}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}/${SHA512_FILE}" > /dev/null
 		ssh "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; sha512sum -c ${DEST_DIR}${SHA512_FILE} > /dev/null"
+		CHECKSUM_RESULT=$?
 	fi
 fi
 if [[ "$MD5" = "NO" ]] && [[ "$SHA512" = "NO" ]] ; then
 	echo "--- run rsync again to check ---"
 	rsync ${RSYNC_OPTION} "${SRC_DIR}" "${DEST_USER}@${DEST_HOST}:${DEST_DIR}"
+fi
+
+# CHECKSUM RESULT CHECK
+if [ ${CHECKSUM_RESULT} = 0 ] ; then
+  echo "SRC DIR and DEST DIR checksum is same"
+  exit 0
+else
+  if [[ "$MD5" = "YES" ]] ; then
+    echo "Output checksum difference."
+      if [[ "$KEY" = "YES" ]] ; then
+        ssh -i "${KEY_FILE}" "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; md5sum -c ${DEST_DIR}${MD5_FILE} | grep -i failed"
+      else
+        ssh "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; md5sum -c ${DEST_DIR}${MD5_FILE} | grep -i failed"
+      fi
+  elif [[ "$SHA512" = "YES" ]] ; then
+    echo "Output checksum difference."
+      if [[ "$KEY" = "YES" ]] ; then
+	ssh -i "${KEY_FILE}" "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; sha512sum -c ${DEST_DIR}${SHA512_FILE} | grep -i failed"
+      else
+   	ssh "${DEST_USER}@${DEST_HOST}" "cd ${DEST_DIR} ; cd .. ; sha512sum -c ${DEST_DIR}${SHA512_FILE} | grep -i failed"
+      fi
+  else
+    :
+  fi
 fi
