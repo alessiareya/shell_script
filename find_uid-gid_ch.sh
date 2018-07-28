@@ -42,7 +42,7 @@ if [ $yn = y ]; then
     OLD_GID=`echo $i | cut -d "," -f 2`
     NEW_GID=`echo $i | cut -d "," -f 3`
     mkdir -p ${USERNAME}
-    find -P ${TARGET_DIR} -uid ${OLD_GID} -exec chgrp -h ${NEW_GID} {} \; -print | tee ${USERNAME}/${USERNAME}_change_gid.list &
+    find -P ${TARGET_DIR} -gid ${OLD_GID} -exec chgrp -h ${NEW_GID} {} \; -print | tee ${USERNAME}/${USERNAME}_change_gid.list &
     wait
   done
   echo "changed uid" && echo ""
