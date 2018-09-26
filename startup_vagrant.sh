@@ -11,24 +11,24 @@ ALL_VM_STARTUP()
   cd ${VAGRANT_DIR}${VM}
   VM_STATUS=`vagrant status | grep default | awk '{ print $2 }'`
   if [ ${VM_STATUS} = "poweroff" ]; then
-    vagrant up > /dev/null && echo "##### VM \"${VM}\" is started. #####" 
+    vagrant up > /dev/null && echo "##### VM \"${VM}\" is started. #####"
   elif [ ${VM_STATUS} = "running" ]; then
     echo "##### VM \"${VM}\" is already running. #####"
   elif [ ${VM_STATUS} = "saved" ]; then
     vagrant resume > /dev/null && echo "##### VM \"${VM}\" resumed from suspend. #####"
   else
-    vagrant up > /dev/null && echo "##### VM \"${VM}\" is started from aborted. #####" 
+    vagrant up > /dev/null && echo "##### VM \"${VM}\" is started from aborted. #####"
   fi
-} 
+}
 
 SELECT_VM_STARTUP()
 {
   case $VM in
-    "${VM%quit}") 
+    "${VM%quit}")
 	    cd ${VM_DIR}/${VM}
       VM_STATUS=`vagrant status | grep default | awk '{ print $2 }'`
       if [ ${VM_STATUS} = "poweroff" ]; then
-        vagrant up > /dev/null && echo "##### VM \"${VM}\" is started. #####" 
+        vagrant up > /dev/null && echo "##### VM \"${VM}\" is started. #####"
       elif [ ${VM_STATUS} = "running" ]; then
         echo "##### VM \"${VM}\" is already running. #####"
       elif [ ${VM_STATUS} = "saved" ]; then
@@ -38,7 +38,7 @@ SELECT_VM_STARTUP()
       fi
 			;;
     "quit")
-      echo "Processing ends"
+      echo "Processing end."
       break
 			;;
     *)
@@ -59,13 +59,13 @@ if [ ${yn} = y ]; then
 ### select VMs startup.
 elif [ ${yn} = n ]; then
   echo "Select VM."
-  select VM in ${VM_NAME} quit
+  select VM in quit ${VM_NAME}
   do
   SELECT_VM_STARTUP
-  done	
+  done
 else
   echo "input \"y\" or \"n\"" && exit 0
-fi	
+fi
 
 ## Processing after startup
 echo "##### Display VM's state. #####"
