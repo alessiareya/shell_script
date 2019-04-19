@@ -41,7 +41,7 @@ SELECT_VM_STARTUP()
       echo "Processing end."
       break
 			;;
-    *)
+    "*")
       echo ${REPLY} is not exist.
   esac
 }
