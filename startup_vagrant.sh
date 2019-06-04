@@ -9,7 +9,7 @@ VM_DIR=/Users/alessi/Vagrant
 ALL_VM_STARTUP()
 {
   cd ${VAGRANT_DIR}${VM}
-  VM_STATUS=`vagrant status | grep default | awk '{ print $4 }'`
+  VM_STATUS=`vagrant status | grep default | awk '{ print $2 }'`
   if [ ${VM_STATUS} = "poweroff" ]; then
     vagrant up > /dev/null && echo "##### VM \"${VM}\" is started. #####"
   elif [ ${VM_STATUS} = "running" ]; then
@@ -26,7 +26,7 @@ SELECT_VM_STARTUP()
   case $VM in
     "${VM%quit}")
 	    cd ${VM_DIR}/${VM}
-      VM_STATUS=`vagrant status | grep default | awk '{ print $4 }'`
+      VM_STATUS=`vagrant status | grep default | awk '{ print $2 }'`
       if [[ ${VM_STATUS} = "poweroff" ]]; then
         vagrant up > /dev/null && echo "##### VM \"${VM}\" is started. #####"
       elif [[ ${VM_STATUS} = "running" ]]; then
