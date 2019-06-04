@@ -9,7 +9,7 @@ VM_DIR=/Users/alessi/Vagrant
 ALL_VM_STARTUP()
 {
   cd ${VAGRANT_DIR}${VM}
-  VM_STATUS=`vagrant status | grep default | awk '{ print $2 }'`
+  VM_STATUS=`vagrant status | grep default | awk '{ print $4 }'`
   if [ ${VM_STATUS} = "poweroff" ]; then
     vagrant up > /dev/null && echo "##### VM \"${VM}\" is started. #####"
   elif [ ${VM_STATUS} = "running" ]; then
@@ -26,20 +26,21 @@ SELECT_VM_STARTUP()
   case $VM in
     "${VM%quit}")
 	    cd ${VM_DIR}/${VM}
-      VM_STATUS=`vagrant status | grep default | awk '{ print $2 }'`
-      if [ ${VM_STATUS} = "poweroff" ]; then
+      VM_STATUS=`vagrant status | grep default | awk '{ print $4 }'`
+      if [[ ${VM_STATUS} = "poweroff" ]]; then
         vagrant up > /dev/null && echo "##### VM \"${VM}\" is started. #####"
-      elif [ ${VM_STATUS} = "running" ]; then
+      elif [[ ${VM_STATUS} = "running" ]]; then
         echo "##### VM \"${VM}\" is already running. #####"
-      elif [ ${VM_STATUS} = "saved" ]; then
+      elif [[ ${VM_STATUS} = "saved" ]]; then
         vagrant resume > /dev/null && echo "##### VM \"${VM}\" resumed from suspend. #####"
       else
         echo "##### UNKNOWN STATUS #####"
+        exit 1
       fi
 			;;
     "quit")
       echo "Processing end."
-      break
+      exit 0
 			;;
     "*")
       echo ${REPLY} is not exist.
