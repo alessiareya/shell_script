@@ -2,7 +2,8 @@
 
 # ENVIRONMENT VARS
 NFT='/usr/sbin/nft'
-NFT_STATUS=$(/usr/bin/systemctl status nftables.service > /dev/null && echo $?) 
+NFT_STATUS=$(/usr/bin/systemctl is-active nftables.service)
+FWD_STATUS=$(/usr/bin/systemctl is-active firewalld.service)
 IP_FAMILY=${IP_FAMILY=inet}
 IF_0='ens160'
 IF_1='ens192'
@@ -13,6 +14,12 @@ FILTER='yes'
 NAT='no'
 
 # FUNCTIONS
+log_supress()
+{
+        # SUPPRESS CONSOLE LOG
+        /usr/sbin/sysctl -w kernel.printk="3 4 1 7" > /dev/null
+}
+
 apply_filter() {
 	# CREATE TABLE and CHAINS
 	$NFT add table ${IP_FAMILY} filter
@@ -33,9 +40,8 @@ apply_filter() {
 	$NFT add element ${IP_FAMILY} filter input_block_ip_list \{ 10.0.0.0/24, 172.16.0.0/24, 192.168.0.0/24 \}
 	
 	# INPUT LIMIT SET
-	$NFT add set  ${IP_FAMILY} filter input_limit_ssh_list \{ type ipv4_addr\; size 0\; flags timeout\;  timeout 1h\; \}
+	$NFT add set  ${IP_FAMILY} filter input_limit_tcp_flood_list \{ type ipv4_addr\; size 0\; flags timeout\; timeout 1h\; \}
 	$NFT add set  ${IP_FAMILY} filter input_limit_icmp_list \{ type ipv4_addr\; size 0\; flags timeout\; timeout 1h\; \}
-
 
 	# INPUT BASE CHAIN RULE
 	$NFT add rule ${IP_FAMILY} filter input ip saddr @input_block_ip_list counter log prefix \"NFTABLES_DROP_IP:\" drop
@@ -50,9 +56,9 @@ apply_filter() {
 	$NFT add rule ${IP_FAMILY} filter input counter limit rate 500/second accept
 
 	# INPUT TCP REGULAR CHAIN RULE
-	$NFT add rule ${IP_FAMILY} filter input_tcp tcp flags syn tcp dport 22 \
+	$NFT add rule ${IP_FAMILY} filter input_tcp tcp flags \{ syn, ack, rst, fin \} tcp dport 1-65535 \
 	     meter flood size 0 \{ ip saddr limit rate over 1/minute burst 4 packets \} \
-	     add @input_limit_ssh_list \{ ip saddr timeout 24h \} counter log prefix \"NFTABLES_DROP_SSH: \" drop
+	     add @input_limit_tcp_flood_list \{ ip saddr timeout 24h \} counter log prefix \"NFTABLES_DROP_TCP_FLOOD: \" drop
 	$NFT add rule ${IP_FAMILY} filter input_tcp ip saddr 0.0.0.0/0 tcp dport \{ 20, 21 \} accept
 	$NFT add rule ${IP_FAMILY} filter input_tcp ip saddr 0.0.0.0/0 tcp dport 22 accept
 	$NFT add rule ${IP_FAMILY} filter input_tcp ip saddr 0.0.0.0/0 tcp dport \{ 53, 80, 443 \} accept
@@ -61,11 +67,12 @@ apply_filter() {
 	$NFT add rule ${IP_FAMILY} filter input_udp ip saddr 0.0.0.0/0 udp dport \{ 53, 123 \} accept
 	
 	# INPUT ICMP REGULAR CHAIN RULE
-	$NFT add rule ${IP_FAMILY} filter input_icmp ip protocol icmp icmp type echo-request limit rate over 1/minute burst 4 packets \
-	     add @input_limit_icmp_list \{ ip saddr timeout 1h \} counter log prefix \"NFTABLES_DROP_ICMP: \" drop
-	$NFT add rule ${IP_FAMILY} filter input_icmp ip protocol icmp icmp type echo-request limit rate 1/second accept
+	$NFT add rule ${IP_FAMILY} filter input_icmp ip protocol icmp icmp type echo-request \
+	     meter input_icmp_list size 0 \{ ip saddr limit rate 1/minute burst 4 packets \} \
+	     add @input_limit_icmp_list \{ ip saddr timeout 24h \} counter log prefix \"NFTABLES_DROP_ICMP: \" drop
 	$NFT add rule ${IP_FAMILY} filter input_icmp ip protocol icmp icmp type echo-request \
 	     limit rate over 85 bytes/second counter log prefix \"NFTABLES_DROP_ICMP_SIZE \" drop
+	$NFT add rule ${IP_FAMILY} filter input_icmp ip protocol icmp icmp type echo-request limit rate 1/minute accept
 	
 	# OUTPUT BASE CHAIN RULE
 	$NFT add rule ${IP_FAMILY} filter output ip daddr 0.0.0.0/0 tcp dport \{ 20, 21, 22, 25, 53, 80, 123, 443, 24220, 24224, 24230 \} accept
@@ -91,14 +98,13 @@ apply_nat() {
 }
 
 # START SETTINGS
-if [[ ${NFT_STATUS} = 0 ]]; then
-	#$NFT list ruleset >> $(date '+%Y%m%d_%H%M%S')_nftables.txt
+if [[ ${NFT_STATUS} = active ]] && [[ ${FWD_STATUS} = inactive ]]; then
+        log_supress
 	$NFT flush ruleset 
 	[[ ${FILTER} = 'yes' ]]  && apply_filter
 	[[ ${NAT} = 'yes' ]]  && apply_nat
-	$NFT list ruleset > /etc/nftables.txt 
+	$NFT list ruleset > /etc/sysconfig/nftables.conf
 else
-	echo Check nftables service or '# lsmod | grep nf_tables'
-	echo Your kenel might be less than 4.18
-	exit 0
+	echo Check nftables,firewalld service or '# lsmod | grep nf_tables'
+	exit 1
 fi
